@@ -58,16 +58,6 @@ public class FarmerTileentity extends VillagerTileentity implements IServerTicka
         }
     }
 
-    public void setCrop(Item seed) {
-        if (seed == null) {
-            this.crop = null;
-        } else {
-            this.crop = getSeedCrop(seed);
-        }
-        setChanged();
-        sync();
-    }
-
     public Block removeSeed() {
         if (crop == null) {
             return null;
@@ -100,11 +90,26 @@ public class FarmerTileentity extends VillagerTileentity implements IServerTicka
         return crop;
     }
 
+    public void setCrop(Item seed) {
+        if (seed == null) {
+            this.crop = null;
+        } else {
+            this.crop = getSeedCrop(seed);
+        }
+        setChanged();
+        sync();
+    }
+
     @Override
     public void tickServer() {
         EasyVillagerEntity v = getVillagerEntity();
+
+        boolean isNotMuted = !Main.SERVER_CONFIG.muteFarmer.get();
+
         if (v != null) {
-            VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+            if (isNotMuted) {
+                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+            }
 
             if (advanceAge()) {
                 sync();
@@ -113,14 +118,14 @@ public class FarmerTileentity extends VillagerTileentity implements IServerTicka
         }
 
         if (level.getGameTime() % 20 == 0 && level.random.nextInt(Main.SERVER_CONFIG.farmSpeed.get()) == 0) {
-            if (ageCrop(v)) {
+            if (ageCrop(v, isNotMuted)) {
                 sync();
                 setChanged();
             }
         }
     }
 
-    private boolean ageCrop(@Nullable EasyVillagerEntity villager) {
+    private boolean ageCrop(@Nullable EasyVillagerEntity villager, boolean isNotMuted) {
         BlockState c = getCrop();
         if (c == null) {
             return false;
@@ -128,11 +133,10 @@ public class FarmerTileentity extends VillagerTileentity implements IServerTicka
 
         Optional<Property<?>> ageProp = c.getProperties().stream().filter(p -> p.getName().equals("age")).findFirst();
 
-        if (!ageProp.isPresent() || !(ageProp.get() instanceof IntegerProperty)) {
+        if (!ageProp.isPresent() || !(ageProp.get() instanceof IntegerProperty p)) {
             return false;
         }
 
-        IntegerProperty p = (IntegerProperty) ageProp.get();
         Integer max = p.getPossibleValues().stream().max(Integer::compare).get();
 
         int age = c.getValue(p);
@@ -150,7 +154,9 @@ public class FarmerTileentity extends VillagerTileentity implements IServerTicka
             }
 
             crop = crop.setValue(p, 0);
-            VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_WORK_FARMER);
+            if (isNotMuted) {
+                VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_WORK_FARMER);
+            }
             return true;
         } else {
             crop = crop.setValue(p, age + 1);

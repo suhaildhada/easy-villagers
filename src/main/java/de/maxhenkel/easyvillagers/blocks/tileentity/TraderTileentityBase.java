@@ -114,12 +114,17 @@ public abstract class TraderTileentityBase extends VillagerTileentity implements
             return;
         }
 
+        boolean isNotMuted = !Main.SERVER_CONFIG.muteTrader.get();
+
         if (advanceAge()) {
             sync();
         }
         setChanged();
 
-        VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+        if (isNotMuted) {
+            VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+        }
+
 
         if (!v.isTrading()) {
             if (v.increaseProfessionLevelOnUpdate) {
@@ -129,7 +134,7 @@ public abstract class TraderTileentityBase extends VillagerTileentity implements
             }
 
             if (level.getGameTime() - getLastRestock() > nextRestock && v.getVillagerData().getProfession().equals(getWorkstationProfession())) {
-                restock();
+                restock(isNotMuted);
                 nextRestock = calculateNextRestock();
             }
         }
@@ -139,16 +144,18 @@ public abstract class TraderTileentityBase extends VillagerTileentity implements
         return Main.SERVER_CONFIG.traderMinRestockTime.get() + level.random.nextInt(Math.max(Main.SERVER_CONFIG.traderMaxRestockTime.get() - Main.SERVER_CONFIG.traderMinRestockTime.get(), 1));
     }
 
-    protected void restock() {
+    protected void restock(boolean isNotMuted) {
         try {
             EasyVillagerEntity villagerEntity = getVillagerEntity();
             if (villagerEntity == null) {
                 return;
             }
             villagerEntity.restock();
-            SoundEvent workSound = villagerEntity.getVillagerData().getProfession().workSound();
-            if (workSound != null) {
-                VillagerBlockBase.playVillagerSound(level, getBlockPos(), workSound);
+            if (isNotMuted) {
+                SoundEvent workSound = villagerEntity.getVillagerData().getProfession().workSound();
+                if (workSound != null) {
+                    VillagerBlockBase.playVillagerSound(level, getBlockPos(), workSound);
+                }
             }
         } catch (Exception e) {
             Main.LOGGER.error("Error restocking villager", e);

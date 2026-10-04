@@ -61,18 +61,27 @@ public class ConverterTileentity extends VillagerTileentity implements IServerTi
                 }
             }
         }
+
+        boolean isNotMuted = !Main.SERVER_CONFIG.muteConverter.get();
+
         if (hasVillager()) {
             if (advanceAge()) {
                 sync();
             }
             if (timer == getZombifyTime()) {
-                VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.ZOMBIE_INFECT);
+                if (isNotMuted) {
+                    VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.ZOMBIE_INFECT);
+                }
                 sync();
             } else if (timer == getCureTime()) {
-                VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.ZOMBIE_VILLAGER_CURE);
+                if (isNotMuted) {
+                    VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.ZOMBIE_VILLAGER_CURE);
+                }
                 sync();
             } else if (timer == getConvertTime()) {
-                VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.ZOMBIE_VILLAGER_CONVERTED);
+                if (isNotMuted) {
+                    VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.ZOMBIE_VILLAGER_CONVERTED);
+                }
                 sync();
             } else if (timer >= getFinalizeTime()) {
                 Player ownerPlayer = getOwnerPlayer();
@@ -94,11 +103,17 @@ public class ConverterTileentity extends VillagerTileentity implements IServerTi
             timer++;
             setChanged();
             if (timer < getZombifyTime() || timer >= getConvertTime()) {
-                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+                if (isNotMuted) {
+                    VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+                }
             } else {
-                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_VILLAGER_AMBIENT);
+                if (isNotMuted) {
+                    VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_VILLAGER_AMBIENT);
+                }
             }
-            VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_AMBIENT);
+            if (isNotMuted) {
+                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_AMBIENT);
+            }
         } else if (timer != 0L) {
             timer = 0L;
             setChanged();
@@ -146,8 +161,7 @@ public class ConverterTileentity extends VillagerTileentity implements IServerTi
         if (owner == null) {
             return null;
         }
-        if (level instanceof ServerLevel) {
-            ServerLevel serverWorld = (ServerLevel) level;
+        if (level instanceof ServerLevel serverWorld) {
             return serverWorld.getServer().getPlayerList().getPlayer(owner);
         } else {
             return level.getPlayerByUUID(owner);

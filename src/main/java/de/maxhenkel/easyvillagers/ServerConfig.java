@@ -29,6 +29,16 @@ public class ServerConfig extends ConfigBase {
     public final ModConfigSpec.IntValue incubatorSpeed;
     public final ModConfigSpec.BooleanValue tradeCycling;
     public final ModConfigSpec.BooleanValue universalReputation;
+    public final ModConfigSpec.BooleanValue muteIronFarm;
+    public final ModConfigSpec.BooleanValue muteTrader;
+    public final ModConfigSpec.BooleanValue muteConverter;
+    public final ModConfigSpec.BooleanValue muteFarmer;
+    public final ModConfigSpec.BooleanValue muteIcubator;
+    public final ModConfigSpec.BooleanValue muteBreeder;
+
+
+
+
 
     public List<Tag<Item>> farmCropsBlacklist;
 
@@ -101,6 +111,23 @@ public class ServerConfig extends ConfigBase {
                 )
                 .define("villager.universal_reputation", true);
 
+        muteIronFarm = builder.comment("Mute the iron farm block")
+                .define("iron_farm.mute", true);
+
+        muteTrader = builder.comment("Mute trader block")
+                .define("trader.mute", true);
+
+        muteConverter = builder.comment("Mute converter block")
+                .define("converter.mute", true);
+
+        muteFarmer = builder.comment("Mute farmer block")
+                .define("farmer.mute", true);
+
+        muteIcubator = builder.comment("Mute incubator block")
+                .define("incubator.mute", true);
+
+        muteBreeder = builder.comment("Mute breeder block")
+                .define("breeder.mute", true);
     }
 
     @Override

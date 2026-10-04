@@ -58,9 +58,15 @@ public class IronFarmTileentity extends VillagerTileentity implements ITickableB
     @Override
     public void tick() {
         EasyVillagerEntity v = getVillagerEntity();
+
+        boolean isNotMuted = !Main.SERVER_CONFIG.muteIronFarm.get();
+
         if (v != null) {
-            VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
-            VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_AMBIENT);
+
+            if (isNotMuted) {
+                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_AMBIENT);
+            }
 
             if (advanceAge()) {
                 sync();
@@ -70,14 +76,20 @@ public class IronFarmTileentity extends VillagerTileentity implements ITickableB
             setChanged();
 
             if (timer == getGolemSpawnTime()) {
-                VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_AMBIENT);
+                if (isNotMuted) {
+                    VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.ZOMBIE_AMBIENT);
+                }
                 sync();
             } else if (timer > getGolemSpawnTime() && timer < getGolemKillTime()) {
                 if (timer % 20L == 0L) {
-                    VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.IRON_GOLEM_HURT);
+                    if (isNotMuted) {
+                        VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.IRON_GOLEM_HURT);
+                    }
                 }
             } else if (timer >= getGolemKillTime()) {
-                VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.IRON_GOLEM_DEATH);
+                if (isNotMuted) {
+                    VillagerBlockBase.playVillagerSound(level, getBlockPos(), SoundEvents.IRON_GOLEM_DEATH);
+                }
                 for (ItemStack drop : getDrops()) {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         drop = itemHandler.insertItem(i, drop, false);

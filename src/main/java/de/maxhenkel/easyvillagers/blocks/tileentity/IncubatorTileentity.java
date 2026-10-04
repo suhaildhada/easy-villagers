@@ -49,8 +49,13 @@ public class IncubatorTileentity extends VillagerTileentity implements IServerTi
                 }
             }
         }
+
+        boolean isNotMuted = !Main.SERVER_CONFIG.muteIcubator.get();
+
         if (hasVillager()) {
-            VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+            if (isNotMuted) {
+                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+            }
 
             Villager villagerEntity = getVillagerEntity();
 

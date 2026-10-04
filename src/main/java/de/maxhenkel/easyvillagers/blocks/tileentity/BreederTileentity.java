@@ -37,7 +37,7 @@ public class BreederTileentity extends FakeWorldTileentity implements IServerTic
     protected EasyVillagerEntity villagerEntity1;
     protected ItemStack villager2;
     protected EasyVillagerEntity villagerEntity2;
-    private MultiItemStackHandler itemHandler;
+    private final MultiItemStackHandler itemHandler;
 
     public BreederTileentity(BlockPos pos, BlockState state) {
         super(ModTileEntities.BREEDER.get(), ModBlocks.BREEDER.get().defaultBlockState(), pos, state);
@@ -52,8 +52,32 @@ public class BreederTileentity extends FakeWorldTileentity implements IServerTic
         return villager1;
     }
 
+    public void setVillager1(ItemStack villager) {
+        this.villager1 = villager;
+
+        if (villager.isEmpty()) {
+            villagerEntity1 = null;
+        } else {
+            villagerEntity1 = VillagerData.createEasyVillager(villager, level);
+        }
+        setChanged();
+        sync();
+    }
+
     public ItemStack getVillager2() {
         return villager2;
+    }
+
+    public void setVillager2(ItemStack villager) {
+        this.villager2 = villager;
+
+        if (villager.isEmpty()) {
+            villagerEntity2 = null;
+        } else {
+            villagerEntity2 = VillagerData.createEasyVillager(villager, level);
+        }
+        setChanged();
+        sync();
     }
 
     public boolean hasVillager1() {
@@ -78,30 +102,6 @@ public class BreederTileentity extends FakeWorldTileentity implements IServerTic
         return villagerEntity2;
     }
 
-    public void setVillager1(ItemStack villager) {
-        this.villager1 = villager;
-
-        if (villager.isEmpty()) {
-            villagerEntity1 = null;
-        } else {
-            villagerEntity1 = VillagerData.createEasyVillager(villager, level);
-        }
-        setChanged();
-        sync();
-    }
-
-    public void setVillager2(ItemStack villager) {
-        this.villager2 = villager;
-
-        if (villager.isEmpty()) {
-            villagerEntity2 = null;
-        } else {
-            villagerEntity2 = VillagerData.createEasyVillager(villager, level);
-        }
-        setChanged();
-        sync();
-    }
-
     public ItemStack removeVillager1() {
         ItemStack v = villager1;
         setVillager1(ItemStack.EMPTY);
@@ -120,25 +120,33 @@ public class BreederTileentity extends FakeWorldTileentity implements IServerTic
             return;
         }
 
+
         boolean age1 = VillagerTileentity.advanceAge(getVillagerEntity1());
         boolean age2 = VillagerTileentity.advanceAge(getVillagerEntity2());
+
+        boolean isNotMuted = !Main.SERVER_CONFIG.muteBreeder.get();
+
         if (age1 || age2) {
             sync();
         }
         if (hasVillager1() || hasVillager2()) {
             setChanged();
-            VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+            if (isNotMuted) {
+                VillagerBlockBase.playRandomVillagerSound(level, getBlockPos(), SoundEvents.VILLAGER_AMBIENT);
+            }
         }
 
         if (level.getGameTime() % Main.SERVER_CONFIG.breedingTime.get() == 0) {
-            tryBreed();
+            tryBreed(isNotMuted);
         }
     }
 
-    public void tryBreed() {
+    public void tryBreed(boolean isNotMuted) {
         if (canBreed() && addVillager()) {
             removeBreedingItems();
-            VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.VILLAGER_CELEBRATE);
+            if (isNotMuted) {
+                VillagerBlockBase.playVillagerSound(level, worldPosition, SoundEvents.VILLAGER_CELEBRATE);
+            }
             spawnParticles();
         }
     }
@@ -149,11 +157,7 @@ public class BreederTileentity extends FakeWorldTileentity implements IServerTic
 
         } else if (level.isClientSide) {
             for (int i = 0; i < 5; i++) {
-                level.addParticle(ParticleTypes.HEART,
-                        worldPosition.getX() + (level.random.nextDouble() - 0.5D) + 0.5D,
-                        worldPosition.getY() + level.random.nextDouble() + 1D,
-                        worldPosition.getZ() + (level.random.nextDouble() - 0.5D) + 0.5D,
-                        0D, 0D, 0D);
+                level.addParticle(ParticleTypes.HEART, worldPosition.getX() + (level.random.nextDouble() - 0.5D) + 0.5D, worldPosition.getY() + level.random.nextDouble() + 1D, worldPosition.getZ() + (level.random.nextDouble() - 0.5D) + 0.5D, 0D, 0D, 0D);
             }
         }
     }
