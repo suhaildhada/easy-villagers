@@ -13,7 +13,6 @@ import de.maxhenkel.easyvillagers.items.VillagerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -22,9 +21,6 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
@@ -51,7 +47,7 @@ public class ConverterTileentity extends VillagerTileentity implements IServerTi
     public void tickServer() {
         if (timer <= 0L && !hasVillager()) {
             for (ItemStack stack : inputInventory) {
-                if (stack.getItem() instanceof VillagerItem && consumeConvertItems()) {
+                if (stack.getItem() instanceof VillagerItem) {
                     ItemStack copy = stack.copy();
                     copy.setCount(1);
                     setVillager(copy);
@@ -118,35 +114,6 @@ public class ConverterTileentity extends VillagerTileentity implements IServerTi
             timer = 0L;
             setChanged();
         }
-    }
-
-    private boolean consumeConvertItems() {
-        ItemStack appleStack = null;
-        ItemStack potionStack = null;
-        for (ItemStack stack : inputInventory) {
-            if (appleStack == null && !stack.isEmpty() && stack.getItem() == Items.GOLDEN_APPLE) {
-                appleStack = stack;
-            }
-            if (potionStack == null && !stack.isEmpty() && isWeakness(stack)) {
-                potionStack = stack;
-            }
-        }
-
-        if (appleStack != null && potionStack != null) {
-            appleStack.shrink(1);
-            potionStack.shrink(1);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static boolean isWeakness(ItemStack stack) {
-        PotionContents potionContents = stack.get(DataComponents.POTION_CONTENTS);
-        if (potionContents == null) {
-            return false;
-        }
-        return potionContents.potion().filter(potionHolder -> potionHolder.equals(Potions.WEAKNESS) || potionHolder.equals(Potions.LONG_WEAKNESS)).isPresent();
     }
 
     public long getTimer() {

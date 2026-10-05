@@ -57,7 +57,7 @@ The breeder block produces baby villagers by putting in food. This also helps to
 ## The Converter Block
 
 The converter block converts villagers to zombie villagers and cures them afterwards, enabling the player that placed the block better trades from the cured villager. 
-This block needs a golden apple, any type of potion of weakness and the villager to convert. 
+This block only needs the villager to convert.
 This process takes approximately five minutes.
 
 ![](https://media.giphy.com/media/l29L7NZ6zURrz0h5Dy/giphy.gif)

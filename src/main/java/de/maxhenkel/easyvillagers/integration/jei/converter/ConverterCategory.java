@@ -4,7 +4,6 @@ import de.maxhenkel.easyvillagers.Main;
 import de.maxhenkel.easyvillagers.blocks.ModBlocks;
 import de.maxhenkel.easyvillagers.integration.jei.JEIPlugin;
 import de.maxhenkel.easyvillagers.items.ModItems;
-import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -16,7 +15,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 public class ConverterCategory implements IRecipeCategory<ItemStack> {
 
@@ -38,15 +36,9 @@ public class ConverterCategory implements IRecipeCategory<ItemStack> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, ItemStack recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).addIngredient(VanillaTypes.ITEM_STACK, recipe);
-        builder.addSlot(RecipeIngredientRole.INPUT, 19, 1).addIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Items.GOLDEN_APPLE));
-        builder.addSlot(RecipeIngredientRole.INPUT, 37, 1).addIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModItems.VILLAGER.get()));
-        builder.addSlot(RecipeIngredientRole.INPUT, 55, 1);
+        builder.addSlot(RecipeIngredientRole.INPUT, 37, 1).addIngredient(VanillaTypes.ITEM_STACK, recipe);
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 1, 32).addIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModItems.VILLAGER.get()));
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 19, 32);
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 37, 32);
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 55, 32);
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 37, 32).addIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModItems.VILLAGER.get()));
     }
 
     @Override
